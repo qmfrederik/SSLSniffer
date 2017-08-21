@@ -1,48 +1,50 @@
 #!/usr/sbin/dtrace -Cws
-# socket communication dumper with SSL support
-# copyright 2009 by iZsh (izsh at iphone-dev.com)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# ==================
-#  General Comments
-# ==================
-#
-# Initially based on a script from pumpkin, but completely rewritten
-# to intercept messages at the SSL command level instead of the CoreFoundation
-# level (which therefore only dumped plist-based messages using the standard
-# CF API functions). 
-#
-# Intercepting at the SSL level directly is a little bit bitchy because of
-# many tail-calls.
-#
-# Also this version doesn't dump hex yet, only asciis. Dumping hexdump
-# without extra large output might be a little bit tricky (I'm not a dtrace
-# wizard) because dtrace's output print size is fixed, so you would always
-# have to print out the same amout of byte, even when there are less bytes in
-# the packet.
-#
-# There are probably bugs or possible improvements to be made, feel free
-# to mail me patches.
-#
-# =======
-#  Usage
-# =======
-#
-# Usage example: sudo SSLSniffer.d -p <pid> or sudo SSLSniffer.d -c /path-to
-# By the way, if you want to attach to iTunes, you will need the
-# pt_deny_attach kext available at http://landonf.bikemonkey.org/code/macosx
+/*
+ * socket communication dumper with SSL support
+ * copyright 2009 by iZsh (izsh at iphone-dev.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ==================
+ *  General Comments
+ * ==================
+ *
+ * Initially based on a script from pumpkin, but completely rewritten
+ * to intercept messages at the SSL command level instead of the CoreFoundation
+ * level (which therefore only dumped plist-based messages using the standard
+ * CF API functions).
+ *
+ * Intercepting at the SSL level directly is a little bit bitchy because of
+ * many tail-calls.
+ *
+ * Also this version doesn't dump hex yet, only asciis. Dumping hexdump
+ * without extra large output might be a little bit tricky (I'm not a dtrace
+ * wizard) because dtrace's output print size is fixed, so you would always
+ * have to print out the same amout of byte, even when there are less bytes in
+ * the packet.
+ *
+ * There are probably bugs or possible improvements to be made, feel free
+ * to mail me patches.
+ *
+ * =======
+ *  Usage
+ * =======
+ *
+ * Usage example: sudo SSLSniffer.d -p <pid> or sudo SSLSniffer.d -c /path-to
+ * By the way, if you want to attach to iTunes, you will need the
+ * pt_deny_attach kext available at http://landonf.bikemonkey.org/code/macosx
+ */
 
 #pragma D option quiet
 #pragma D option switchrate=10
